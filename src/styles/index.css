@@ -187,7 +187,11 @@ textarea:focus {
 /* Button variants */
 .btn-primary {
   background-color: var(--color-primary);
-  color: white;
+  color: white; 
+  padding: 0.6em 1.2em;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: background-color 0.25s ease-in-out;
 }
 
 .btn-primary:hover {
