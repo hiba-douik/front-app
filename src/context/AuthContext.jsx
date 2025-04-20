@@ -1,22 +1,14 @@
 "use client"
-import { createContext, useContext, useState, useEffect } from "react"
+import { createContext, useContext, useEffect, useState } from "react"
+import authAPI from "../api/authApi"
 
-// Create the auth context
 const AuthContext = createContext()
-
-// Mock user data for demonstration
-const mockUsers = [
-  { id: 1, name: "User Test", email: "user@example.com", password: "password", role: "user" },
-  { id: 2, name: "Admin Test", email: "admin@example.com", password: "password", role: "admin" },
-  { id: 3, name: "Super Admin", email: "superadmin@example.com", password: "password", role: "superadmin" },
-]
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Check if user is stored in localStorage
     const storedUser = localStorage.getItem("user")
     if (storedUser) {
       setUser(JSON.parse(storedUser))
@@ -24,64 +16,40 @@ export const AuthProvider = ({ children }) => {
     setLoading(false)
   }, [])
 
-  // Login function
-  const login = (email, password) => {
-    return new Promise((resolve, reject) => {
-      // Simulate API call
-      setTimeout(() => {
-        const foundUser = mockUsers.find(
-          (u) => u.email.toLowerCase() === email.toLowerCase() && u.password === password,
-        )
-
-        if (foundUser) {
-          // Remove password from user object
-          const { password, ...userWithoutPassword } = foundUser
-          setUser(userWithoutPassword)
-          localStorage.setItem("user", JSON.stringify(userWithoutPassword))
-          resolve(userWithoutPassword)
-        } else {
-          reject(new Error("Invalid credentials"))
-        }
-      }, 1000)
-    })
+  const login = async (email, password) => {
+    try {
+      const userData = await authAPI.login({ email, password })
+      setUser(userData)
+      localStorage.setItem("user", JSON.stringify(userData))
+      localStorage.setItem("token", userData.token) // si ton backend renvoie un token
+      return userData
+    } catch (error) {
+      throw error
+    }
   }
 
-  // Register function
-  const register = (name, email, password) => {
-    return new Promise((resolve, reject) => {
-      // Simulate API call
-      setTimeout(() => {
-        // Check if email already exists
-        const existingUser = mockUsers.find((u) => u.email.toLowerCase() === email.toLowerCase())
-        if (existingUser) {
-          reject(new Error("Email already in use"))
-          return
-        }
-
-        // Create new user
-        const newUser = {
-          id: mockUsers.length + 1,
-          name,
-          email,
-          password,
-          role: "user", // Default role
-        }
-
-        mockUsers.push(newUser)
-
-        // Remove password from user object
-        const { password: _, ...userWithoutPassword } = newUser
-        setUser(userWithoutPassword)
-        localStorage.setItem("user", JSON.stringify(userWithoutPassword))
-        resolve(userWithoutPassword)
-      }, 1000)
-    })
+  const register = async (name, email, password) => {
+    try {
+      const userData = await authAPI.register({ name, email, password })
+      setUser(userData)
+      localStorage.setItem("user", JSON.stringify(userData))
+      localStorage.setItem("token", userData.token) // idem ici
+      return userData
+    } catch (error) {
+      throw error
+    }
   }
 
-  // Logout function
-  const logout = () => {
-    setUser(null)
-    localStorage.removeItem("user")
+  const logout = async () => {
+    try {
+      await authAPI.logout()
+    } catch (error) {
+      console.warn("Erreur lors de la déconnexion :", error)
+    } finally {
+      setUser(null)
+      localStorage.removeItem("user")
+      localStorage.removeItem("token")
+    }
   }
 
   const value = {
