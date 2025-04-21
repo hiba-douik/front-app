@@ -6,6 +6,7 @@ import MainLayout from "../layouts/MainLayout"
 // Pages
 import Home from "../pages/Home"
 import NotFound from "../pages/NotFound"
+import RapportPage from "../pages/Rapports"
 
 // Auth
 import Login from "../auth/Login"
@@ -69,7 +70,7 @@ const AppRouter = () => {
             <Route path="admin">
               <Route path="dashboard" element={<AdminDashboard />} />
               <Route path="users" element={<div>Users Management Page</div>} />
-              <Route path="reports" element={<div>Reports Validation Page</div>} />
+              <Route path="reports" element={<RapportPage />} />
               <Route path="stats" element={<div>Statistics Page</div>} />
             </Route>
           </Route>

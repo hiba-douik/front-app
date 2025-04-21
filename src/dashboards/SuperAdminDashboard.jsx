@@ -1,272 +1,185 @@
-import { useState } from "react"
+import React, { useState } from 'react';
+import { CartesianGrid, Cell, Legend, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 const SuperAdminDashboard = () => {
-  const [activeTab, setActiveTab] = useState("overview")
+  const [activeTab, setActiveTab] = useState('overview');
 
-  // Mock data for system stats
-  const systemStats = {
-    totalUsers: 156,
-    activeUsers: 124,
-    totalInterventions: 1245,
-    pendingValidations: 78,
-    systemUptime: "99.8%",
-    apiRequests: "15.2k/day",
-  }
+  const activityData = [
+    { jour: 'Lundi', interventions: 45, erreurs: 8 },
+    { jour: 'Mardi', interventions: 52, erreurs: 5 },
+    { jour: 'Mercredi', interventions: 48, erreurs: 10 },
+    { jour: 'Jeudi', interventions: 60, erreurs: 7 },
+    { jour: 'Vendredi', interventions: 55, erreurs: 6 },
+    { jour: 'Samedi', interventions: 30, erreurs: 4 },
+    { jour: 'Dimanche', interventions: 15, erreurs: 2 },
+  ];
 
-  // Mock data for recent activities
-  const recentActivities = [
-    { id: 1, user: "Admin1", action: "Validation de CR", target: "CR-2023-05-15-001", timestamp: "2023-05-15 14:32" },
-    {
-      id: 2,
-      user: "Admin2",
-      action: "Modification utilisateur",
-      target: "user@example.com",
-      timestamp: "2023-05-15 13:45",
-    },
-    {
-      id: 3,
-      user: "SuperAdmin",
-      action: "Ajout de rôle",
-      target: "Nouveau rôle: Superviseur",
-      timestamp: "2023-05-14 16:20",
-    },
-    { id: 4, user: "Admin3", action: "Rejet de CR", target: "CR-2023-05-14-008", timestamp: "2023-05-14 11:05" },
-    {
-      id: 5,
-      user: "SuperAdmin",
-      action: "Configuration système",
-      target: "Paramètres de validation",
-      timestamp: "2023-05-13 09:30",
-    },
-  ]
+  const dataAnomalies = [
+    { name: "Photos floues", value: 20, color: "#f97316" },
+    { name: "Coordonnées GPS incorrectes", value: 15, color: "#fb923c" },
+    { name: "Données manquantes", value: 10, color: "#fdba74" },
+  ];
+
+  const [selectedType, setSelectedType] = useState("Tous");
+
+const anomalies = [
+  { date: "2025-04-14", type: "Photos floues", gravité: "Moyenne", nombre: 5 },
+  { date: "2025-04-15", type: "Photos floues", gravité: "Élevée", nombre: 7 },
+  { date: "2025-04-15", type: "GPS", gravité: "Basse", nombre: 3 },
+  { date: "2025-04-16", type: "Données manquantes", gravité: "Élevée", nombre: 4 },
+  { date: "2025-04-17", type: "GPS", gravité: "Moyenne", nombre: 6 },
+  { date: "2025-04-18", type: "Photos floues", gravité: "Basse", nombre: 2 },
+];
+
+const filteredAnomalies = selectedType === "Tous"
+  ? anomalies
+  : anomalies.filter((a) => a.type === selectedType);
+
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Tableau de bord Super Admin</h1>
+    <div className="min-h-screen px-4 py-8 bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+      <h1 className="text-4xl font-bold text-center text-gray-900 dark:text-white mb-10">
+        Tableau de Bord – Super Admin
+      </h1>
 
-      {/* Tabs */}
-      <div className="border-b border-gray-200 dark:border-gray-700">
-        <nav className="-mb-px flex space-x-8">
+      {/* Onglets */}
+      <div className="flex justify-center space-x-4 mb-8">
+        {['overview', 'settings', 'audit'].map((tab) => (
           <button
-            onClick={() => setActiveTab("overview")}
-            className={`py-4 px-1 border-b-2 font-medium text-sm ${
-              activeTab === "overview"
-                ? "border-blue-500 text-blue-600 dark:text-blue-400"
-                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300"
-            }`}
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={`px-5 py-2 font-medium rounded-full transition-colors duration-200
+              ${activeTab === tab
+                ? 'bg-blue-600 text-white shadow-lg'
+                : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-white hover:bg-blue-100 dark:hover:bg-gray-600'}
+            `}
           >
-            Vue d'ensemble
+            {tab === 'overview' && "Vue d'ensemble"}
+            {tab === 'settings' && "Configuration"}
+            {tab === 'audit' && "Journal d'audit"}
           </button>
-          <button
-            onClick={() => setActiveTab("config")}
-            className={`py-4 px-1 border-b-2 font-medium text-sm ${
-              activeTab === "config"
-                ? "border-blue-500 text-blue-600 dark:text-blue-400"
-                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300"
-            }`}
-          >
-            Configuration
-          </button>
-          <button
-            onClick={() => setActiveTab("audit")}
-            className={`py-4 px-1 border-b-2 font-medium text-sm ${
-              activeTab === "audit"
-                ? "border-blue-500 text-blue-600 dark:text-blue-400"
-                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300"
-            }`}
-          >
-            Audit
-          </button>
-        </nav>
+        ))}
       </div>
 
-      {/* Tab Content */}
-      <div>
-        {activeTab === "overview" && (
-          <div className="space-y-6">
-            {/* System Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
-                <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Utilisateurs</h3>
-                <div className="mt-2 flex justify-between items-end">
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">{systemStats.totalUsers}</p>
-                  <p className="text-sm text-green-600">{systemStats.activeUsers} actifs</p>
-                </div>
-              </div>
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl transition-colors duration-300">
+        {activeTab === 'overview' && (
+          <div>
+            <h2 className="text-2xl font-semibold mb-6 text-gray-800 dark:text-white">
+              🔎 Vue d'ensemble du système
+            </h2>
 
-              <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
-                <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Interventions</h3>
-                <div className="mt-2 flex justify-between items-end">
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">{systemStats.totalInterventions}</p>
-                  <p className="text-sm text-yellow-600">{systemStats.pendingValidations} en attente</p>
-                </div>
+            {/* Statistiques */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+              <div className="bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-800 dark:to-blue-900 p-4 rounded-xl">
+                <p className="text-sm text-gray-800 dark:text-gray-200">Total Interventions</p>
+                <p className="text-3xl font-bold text-blue-800 dark:text-white">150</p>
               </div>
-
-              <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
-                <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Performance système</h3>
-                <div className="mt-2 flex justify-between items-end">
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">{systemStats.systemUptime}</p>
-                  <p className="text-sm text-blue-600">{systemStats.apiRequests}</p>
-                </div>
+              <div className="bg-gradient-to-br from-red-100 to-red-200 dark:from-red-800 dark:to-red-900 p-4 rounded-xl">
+                <p className="text-sm text-gray-800 dark:text-gray-200">Anomalies détectées</p>
+                <p className="text-3xl font-bold text-red-700 dark:text-white">25</p>
+              </div>
+              <div className="bg-gradient-to-br from-green-100 to-green-200 dark:from-green-800 dark:to-green-900 p-4 rounded-xl">
+                <p className="text-sm text-gray-800 dark:text-gray-200">Erreurs corrigées</p>
+                <p className="text-3xl font-bold text-green-700 dark:text-white">22</p>
               </div>
             </div>
 
-            {/* Recent Activities */}
-            <div className="bg-white dark:bg-gray-800 shadow rounded-lg">
-              <div className="px-4 py-5 sm:px-6 border-b border-gray-200 dark:border-gray-700">
-                <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white">Activités récentes</h3>
+            
+
+            {/* Graphique à lignes */}
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
+              <h5 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">
+                📈 Activité des 7 derniers jours
+              </h5>
+              <div className="h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={activityData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="jour" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Line type="monotone" dataKey="interventions" stroke="#EE8412" strokeWidth={2} />
+                    <Line type="monotone" dataKey="erreurs" stroke="#FF0000" strokeWidth={2} />
+                  </LineChart>
+                </ResponsiveContainer>
               </div>
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                  <thead className="bg-gray-50 dark:bg-gray-700">
-                    <tr>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-                      >
-                        Utilisateur
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-                      >
-                        Action
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-                      >
-                        Cible
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-                      >
-                        Horodatage
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                    {recentActivities.map((activity) => (
-                      <tr key={activity.id}>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                          {activity.user}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                          {activity.action}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                          {activity.target}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                          {activity.timestamp}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+            </div>
+
+            {/* Graphique camembert */}
+            <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-6">
+              <h3 className="text-xl font-semibold text-center text-gray-800 dark:text-white mb-4">
+                🧩 Répartition des Anomalies
+              </h3>
+              <div className="h-72">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={dataAnomalies}
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={100}
+                      labelLine
+                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                      dataKey="value"
+                    >
+                      {dataAnomalies.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
               </div>
             </div>
           </div>
         )}
 
-        {activeTab === "config" && (
-          <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Configuration du système</h3>
-
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Seuil de validation automatique
-                </label>
-                <select className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
-                  <option>90%</option>
-                  <option>95%</option>
-                  <option>98%</option>
-                  <option>100%</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Délai maximum de validation
-                </label>
-                <select className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
-                  <option>24 heures</option>
-                  <option>48 heures</option>
-                  <option>72 heures</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Modèle d'IA pour validation
-                </label>
-                <select className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
-                  <option>Modèle standard</option>
-                  <option>Modèle avancé</option>
-                  <option>Modèle personnalisé</option>
-                </select>
-              </div>
-
-              <div className="pt-4">
-                <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  Enregistrer les modifications
-                </button>
-              </div>
-            </div>
+        {activeTab === 'settings' && (
+          <div>
+            <h2 className="text-2xl font-semibold mb-4 text-gray-800 dark:text-white">⚙️ Paramètres</h2>
+            <p className="text-gray-700 dark:text-gray-300">
+              Bientôt disponible : personnalisation des configurations système.
+            </p>
           </div>
         )}
 
-        {activeTab === "audit" && (
-          <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Journal d'audit</h3>
-
-            <div className="mb-4 flex space-x-4">
-              <div className="flex-1">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date de début</label>
-                <input
-                  type="date"
-                  className="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-              </div>
-
-              <div className="flex-1">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date de fin</label>
-                <input
-                  type="date"
-                  className="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-              </div>
-
-              <div className="flex-1">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Type d'action</label>
-                <select className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
-                  <option>Toutes les actions</option>
-                  <option>Connexion</option>
-                  <option>Validation CR</option>
-                  <option>Modification utilisateur</option>
-                  <option>Configuration système</option>
-                </select>
-              </div>
-
-              <div className="flex items-end">
-                <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  Filtrer
-                </button>
-              </div>
-            </div>
-
-            <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-md">
-              <p className="text-gray-500 dark:text-gray-300 text-sm">
-                Sélectionnez une plage de dates et un type d'action pour afficher les journaux d'audit.
-              </p>
+        {activeTab === 'audit' && (
+          <div>
+            <h2 className="text-2xl font-semibold mb-4 text-gray-800 dark:text-white">📜 Journal d'audit</h2>
+            <div className="overflow-x-auto rounded-lg shadow">
+              <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead className="bg-gray-200 dark:bg-gray-700">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600 dark:text-gray-300">Date</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600 dark:text-gray-300">Utilisateur</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600 dark:text-gray-300">Action</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600 dark:text-gray-300">Détails</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                  <tr>
+                    <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">2025-04-20</td>
+                    <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">admin_01</td>
+                    <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">Connexion</td>
+                    <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">Connexion réussie</td>
+                  </tr>
+                  <tr>
+                    <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">2025-04-20</td>
+                    <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">super_admin</td>
+                    <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">Modification</td>
+                    <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">Changement configuration système</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         )}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default SuperAdminDashboard
+export default SuperAdminDashboard;
+
