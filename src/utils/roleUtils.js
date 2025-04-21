@@ -24,7 +24,7 @@ export const hasRole = (user, requiredRole) => {
     const roleDisplayNames = {
       superadmin: "Super Administrateur",
       admin: "Administrateur",
-      user: "Technicien",
+      user: "Agent",
     }
   
     return roleDisplayNames[role?.toLowerCase()] || role

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { userAPI } from "../api/userApi"
+import { userAPI } from "../api/userAPI"
 
 const AdminDashboard = () => {
   const [users, setUsers] = useState([])

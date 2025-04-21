@@ -9,7 +9,7 @@ import NotFound from "../pages/NotFound"
 
 // Auth
 import Login from "../auth/Login"
-import Register from "../auth/register"
+import Register from "../auth/Register"
 
 // Dashboards
 import AdminDashboard from "../dashboards/AdminDashboard"
