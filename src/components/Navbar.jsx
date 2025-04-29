@@ -2,7 +2,7 @@ import { Link } from "react-router-dom"
 import { useAuth } from "../context/AuthContext"
 import { useTheme } from "../context/ThemeContext"
 import { useState } from "react"
-import logo from '../assets/image.png';
+import bytel from '../assets/bytel.png';
 
 const Navbar = () => {
   const { user, logout } = useAuth()
@@ -17,7 +17,7 @@ const Navbar = () => {
     <nav style={{ backgroundColor: "var(--color-card)", borderBottom: "1px solid var(--color-border)" }}>
       <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
         <Link to="/" className="flex items-center">
-        <img className="mx-auto h-16 w-auto" src={logo} alt="Circet" />
+        <img className="mx-auto h-16 w-auto" src={bytel} alt="bouygues" />
         </Link>
 
         <div className="flex items-center md:order-2">

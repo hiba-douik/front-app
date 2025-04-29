@@ -1,6 +1,7 @@
 import { Link, useLocation } from "react-router-dom"
 import { useAuth } from "../context/AuthContext"
 import { useState } from "react"
+import logo from '../assets/image.png';
 
 const Sidebar = () => {
   const { user } = useAuth()
@@ -127,13 +128,7 @@ const Sidebar = () => {
         <div className="flex items-center justify-between mb-5">
           {!isCollapsed && (
             <Link to="/" className="flex items-center">
-              <img src="/logo.png" className="h-8 mr-3" alt="Circet Logo" />
-              <span
-                style={{ color: "var(--color-text)", fontWeight: 600 }}
-                className="self-center text-xl whitespace-nowrap"
-              >
-                Circet
-              </span>
+              <img className="mx-auto h-16 w-auto" src={logo} alt="Circet" />
             </Link>
           )}
           <button
